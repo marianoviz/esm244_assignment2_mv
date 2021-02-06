@@ -1,0 +1,143 @@
+---
+title: "a2_task2_mariano_viz"
+author: "Mariano Viz"
+date: "06/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(janitor)
+library(here)
+library(patchwork)
+
+```
+
+### Summary
+In this report, I explore the abundance of the mountain yellow-legged frog (Rana muscosa) in the Sierra Nevada ecosystem for the period 1995-2002. Specifically, I examine the total number of adult, subadult, and tadpole observed in the entire study region by year and the total counts of combined adult and subadult observed in the 5 lakes with the greatest total counts. Results are presented in a single compound figure. Data were extracted from Knapp et al. (2020).
+
+
+
+```{r}
+#Read in data
+palmetto_data <- read_csv(here("data", "palmetto.csv"))
+
+```
+
+
+
+```{r}
+#Data wrangling:
+palmetto_subset <- palmetto_data %>% 
+  select(species, height, length, width, green_lvs) %>% 
+  #selecting relevant columns
+  mutate(species = case_when(species == "1" ~ "Serenoa repens", species == "2" ~ "Sabal etonia")) #renaming species
+```
+
+
+### Data Visualization
+
+```{r}
+
+##Data visualization (stored to make a compound figure): 
+
+#Data visualization (Species and Height):
+sp_height_plot <- ggplot(data = palmetto_subset, aes(x = species, y = height)) +
+  geom_violin(aes(color = species, fill=species), alpha = 0.2)+
+  geom_boxplot(fill = NA, 
+               width = 0.2, 
+               outlier.color = NA)+
+  stat_summary(fun = mean,
+               alpha = 0.6,
+               size = 0.3) +
+  scale_fill_manual(values = c("orange2","palegreen4")) +
+  scale_color_manual(values = c("orange2","palegreen4"))+
+  labs(x = "Species",
+       y = "Height (cm)") +
+  theme_minimal() +
+  theme(legend.position="none")
+
+#Data visualization (Species and Canopy length):
+sp_length_plot <- ggplot(data = palmetto_subset, aes(x = species, y = length)) +
+  geom_violin(aes(color = species, fill=species), alpha = 0.2)+
+  geom_boxplot(fill = NA, 
+               width = 0.2, 
+               outlier.color = NA)+
+  stat_summary(fun = mean,
+               alpha = 0.6,
+               size = 0.3) +
+  scale_fill_manual(values = c("orange2","palegreen4")) +
+  scale_color_manual(values = c("orange2","palegreen4"))+
+  labs(x = "Species",
+       y = "Canopy length (cm)") +
+  theme_minimal() +
+  theme(legend.position="none")
+  
+
+#Data visualization stored for (Species and Canopy width):
+sp_width_plot <- ggplot(data = palmetto_subset, aes(x = species, y = width)) +
+  geom_violin(aes(color = species, fill=species), alpha = 0.2)+
+  geom_boxplot(fill = NA, 
+               width = 0.2, 
+               outlier.color = NA)+
+  stat_summary(fun = mean,
+               alpha = 0.6,
+               size = 0.3) +
+  scale_fill_manual(values = c("orange2","palegreen4")) +
+  scale_color_manual(values = c("orange2","palegreen4"))+
+  labs(x = "Species",
+       y = "Canopy width (cm)") +
+  theme_minimal() +
+  theme(legend.position="none")
+
+
+#Compound figure (patchwork):
+sp_height_plot | sp_length_plot | sp_width_plot 
+  
+
+```
+
+**Figure 1.** Data: Abrahamson, W.G. (2019).
+
+
+
+```{r}
+#Data visualization (Canopy length and Canopy width for both species):
+ggplot(data = palmetto_subset, aes(x = length, y = width)) +
+  geom_point(aes(color = species), alpha = 0.2) +
+  scale_color_manual(values = c("orange2","palegreen4"))+
+  labs(x = "Canopy length (cm)",
+       y = "Canopy width (cm)") +
+  theme_minimal() 
+```
+
+**Figure 2.** Data: Abrahamson, W.G. (2019).
+
+
+```{r}
+#Data visualization (Species and Count of green leaves):
+ggplot(data = palmetto_subset, aes(x = species, y = green_lvs)) +
+  geom_violin(aes(color = species, fill=species), alpha = 0.2)+
+  geom_boxplot(fill = NA, 
+               width = 0.2, 
+               outlier.color = NA)+
+  stat_summary(fun = mean,
+               alpha = 0.6,
+               size = 0.3) +
+  scale_fill_manual(values = c("orange2","palegreen4")) +
+  scale_color_manual(values = c("orange2","palegreen4"))+
+  labs(x = "Species",
+       y = "Canopy Width (cm)") +
+  theme_minimal() +
+  theme(legend.position="none")
+
+```
+
+**Figure 3.** Data: Abrahamson, W.G. (2019).
+
+
+
+
+Data source: Abrahamson, W.G. 2019. Survival, growth and biomass estimates of two dominant palmetto species of south-central Florida from 1981 - 2017, ongoing at 5-year intervals ver 1. Environmental Data Initiative. https://doi.org/10.6073/pasta/f2f96ec76fbbd4b9db431c79a770c4d5
