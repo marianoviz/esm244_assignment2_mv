@@ -1,5 +1,5 @@
 ---
-title: "a2_task2_mariano_viz"
+title: "Feasibility of using plant height, canopy length, canopy width, and  green leaf counts for classifing palmetto plants as *Serenoa repens* or *Sabal etonia*"
 author: "Mariano Viz"
 date: "06/02/2021"
 output: 
@@ -21,7 +21,7 @@ library(kableExtra)
 ```
 
 ### Summary
-In this report, I explore the abundance of the mountain yellow-legged frog (Rana muscosa) in the Sierra Nevada ecosystem for the period 1995-2002. Specifically, I examine the total number of adult, subadult, and tadpole observed in the entire study region by year and the total counts of combined adult and subadult observed in the 5 lakes with the greatest total counts. Results are presented in a single compound figure. Data were extracted from Knapp et al. (2020).
+In this report, I fist explore the differences in plant height, canopy length, canopy width, and counts of green leaves for *Serenoa repens* or *Sabal etonia* palmetto plant species. Then, I use Binary Logistic Regression to analyze the feasibility of using these variables to accurately classify palmetto plants as *Serenoa repens* or *Sabal etonia*. Data were extracted from Abrahamson W.G. (2019).
 
 
 
@@ -104,8 +104,9 @@ sp_height_plot | sp_length_plot | sp_width_plot
 
 ```
 
-**Figure 1.** Data: Abrahamson, W.G. (2019).
+**Figure 1.** Distribution of plant height (cm), canopy length (cm), and canopy width (cm) for species *Serenoa repens* and *Sabal etonia*. Box endpoints indicate the 25^th^ and 75^th^ percentile values. The black line and black point within the box indicate the weights median and mean value respectively. Data: Abrahamson, W.G. (2019).
 
+Distribution of plant height (cm), canopy length (cm), and canopy width (cm) do not show marked differences between the two species. Greatest differences between the two species are observed with respect to the canopy length. 
 
 
 ```{r}
@@ -118,7 +119,10 @@ ggplot(data = palmetto_subset, aes(x = length, y = width)) +
   theme_minimal() 
 ```
 
-**Figure 2.** Data: Abrahamson, W.G. (2019).
+**Figure 2.** Relationship between canopy width (cm) and canopy length (cm) for  species *Serenoa repens* and *Sabal etonia*. Green and orange points indicate individual observation for *Serenoa repens* and *Sabal etonia* respectively.Data: Abrahamson, W.G. (2019).
+
+
+The plot shows a positive relationship between the variable canopy width (cm) and canopy length (cm). Both species show similar values for the variables, with a slightly higher presence of *Sabal etonia* in the highest values of canopy width (agreeing with what was observed in the preceding graph). 
 
 
 ```{r}
@@ -134,21 +138,22 @@ ggplot(data = palmetto_subset, aes(x = species, y = green_lvs)) +
   scale_fill_manual(values = c("orange2","palegreen4")) +
   scale_color_manual(values = c("orange2","palegreen4"))+
   labs(x = "Species",
-       y = "Canopy Width (cm)") +
+       y = "Count of green leaves") +
   theme_minimal() +
   theme(legend.position="none")
 
 ```
 
-**Figure 3.** Data: Abrahamson, W.G. (2019).
+**Figure 3.** Distribution of green leaves for species *Serenoa repens* and *Sabal etonia*. Box endpoints indicate the 25^th^ and 75^th^ percentile values. The black line and black point within the box indicate the weights median and mean value respectively. Data: Abrahamson, W.G. (2019).
 
-
+Distribution of the green leaf counts varies markedly for the two spices where * Sabal etonia * shows lower values and with less variability than * Serenoa repens.
 
 
 ### Binary Logistic Regression
 
 
-**Table 1.** Binary Logistic Regression model rersults. Data: Abrahamson, W.G. (2019).
+**Table 1.** Binary Logistic Regression model results. Data: Abrahamson, W.G. (2019).
+
 ```{r}
 #Convert Species column to factor:
 palmetto_blr <- palmetto_subset %>% 
@@ -180,9 +185,10 @@ palmetto_species_blr_tidy
 
 
 
-### Model's capabilities to correctly classify species (Serenoa repens / Sabal etonia)
+### Model's ability to correctly classify species (*Serenoa repens* / *Sabal etonia*)
 
-**Table 2.** Binary Logistic Regression model rersults. Data: Abrahamson, W.G. (2019).
+**Table 2.** Model's ability to correctly classified plants as *Serenoa repens* or *Sabal etonia* based on the variables plant height, canopy length, canopy width, and counts of green leaves. Data: Abrahamson, W.G. (2019).
+
 ```{r}
 #Probability of being Serenoa repens (non-zero level):
 blr_fitted <- palmetto_species_blr %>% 

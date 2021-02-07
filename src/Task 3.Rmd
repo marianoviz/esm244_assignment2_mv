@@ -1,0 +1,143 @@
+---
+title: "Untitled"
+author: "Mariano Viz"
+date: "07/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(janitor)
+library(packcircles)
+library(ggplot2)
+library(viridis)
+library(ggiraph)
+
+```
+
+
+```{r}
+plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-01-26/plastics.csv')  
+  
+  
+  plastics_subset <- plastics %>% 
+  group_by(country) %>% 
+  summarise(total_pet = sum(pet)) %>% 
+  arrange(desc(total_pet)) %>% 
+  filter(country != "EMPTY") 
+  
+  
+        
+        
+nig <-  plastics_subset %>% 
+  filter(country == "Nigeria") 
+  
+no_countries <-plastics_subset %>% 
+  filter(country != "NIGERIA") %>% 
+  filter(country != "Nigeria")%>% 
+  filter(country != "United Kingdom of Great Britain & Northern Ireland")%>% 
+  filter(country != "ECUADOR") 
+  
+
+uk <-  plastics_subset %>% 
+  filter(country == "United Kingdom of Great Britain & Northern Ireland") %>%
+  mutate(country = case_when(country == "United Kingdom of Great Britain & Northern Ireland" ~ "United Kingdom"))
+
+
+
+ec <-  plastics_subset %>% 
+  filter(country == "ECUADOR") %>%
+  mutate(country = case_when(country == "ECUADOR" ~ "Ecuador"))
+
+
+
+
+added_total <- rbind(no_countries, uk, ec, nig) %>% 
+  arrange(desc(total_pet)) 
+
+
+top_10 <- added_total %>% 
+  slice_max(total_pet, n = 30) 
+  
+
+
+
+
+
+          
+        
+```
+
+# Top 30 polyethylene terephthalate polluters (2019-2020)
+```{r}
+
+
+top_10$text <- paste("name: ",top_10$country, "\n", "value:", top_10$total_pet, "\n", "Cool data viz by M. VIZ ;)")
+
+
+
+packing <- circleProgressiveLayout(top_10$total_pet, sizetype='area')
+data <- cbind(top_10, packing)
+dat.gg <- circleLayoutVertices(packing, npoints=50)
+
+p <- ggplot() + 
+  geom_polygon_interactive(data = dat.gg, aes(x, y, group = id, fill=id, tooltip = data$text[id], data_id = id), colour = "black", alpha = 0.6) +
+  scale_fill_viridis(option = "C") +
+  geom_text(data = data, aes(x, y, label = gsub("Group_", "", country)), size=2, color="black") +
+  theme_void() + 
+  theme(legend.position="none", plot.margin=unit(c(0,0,0,0),"cm") ) + 
+  coord_equal()
+
+
+widg <- ggiraph(ggobj = p, width_svg = 7, height_svg = 7)
+
+
+widg
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+top10 <- ggplot(data =  top_10, aes(x = country, y = total_pet))+
+  geom_bar(stat="identity", fill = alpha("blue", 0.3))+
+  ylim(-5000, 90000)+
+  theme_minimal()+
+   theme(
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-2,4), "cm")) +
+  coord_polar(start = 0)
+
+top10
+
+
+
+
+
+```
+
