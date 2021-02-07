@@ -2,7 +2,9 @@
 title: "a2_task2_mariano_viz"
 author: "Mariano Viz"
 date: "06/02/2021"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -12,6 +14,9 @@ library(tidyverse)
 library(janitor)
 library(here)
 library(patchwork)
+library(broom)
+library(jtools)
+library(kableExtra)
 
 ```
 
@@ -23,6 +28,7 @@ In this report, I explore the abundance of the mountain yellow-legged frog (Rana
 ```{r}
 #Read in data
 palmetto_data <- read_csv(here("data", "palmetto.csv"))
+  
 
 ```
 
@@ -31,8 +37,7 @@ palmetto_data <- read_csv(here("data", "palmetto.csv"))
 ```{r}
 #Data wrangling:
 palmetto_subset <- palmetto_data %>% 
-  select(species, height, length, width, green_lvs) %>% 
-  #selecting relevant columns
+  select(species, height, length, width, green_lvs) %>% #selecting relevant columns
   mutate(species = case_when(species == "1" ~ "Serenoa repens", species == "2" ~ "Sabal etonia")) #renaming species
 ```
 
@@ -136,6 +141,78 @@ ggplot(data = palmetto_subset, aes(x = species, y = green_lvs)) +
 ```
 
 **Figure 3.** Data: Abrahamson, W.G. (2019).
+
+
+
+
+### Binary Logistic Regression
+
+
+**Table 1.** Binary Logistic Regression model rersults. Data: Abrahamson, W.G. (2019).
+```{r}
+#Convert Species column to factor:
+palmetto_blr <- palmetto_subset %>% 
+mutate(species = as.factor(species))
+
+#Binary Logistic Regression:
+palmetto_species_blr <- glm(species ~ height + length + width + green_lvs, 
+                            data = palmetto_blr,
+                            family = "binomial")
+
+#Observation of the outcomes:
+    #palmetto_species_blr 
+    #summary(palmetto_species_blr)
+
+
+#Finalized table with model outcomes:
+palmetto_species_blr_tidy <-
+  broom::tidy(palmetto_species_blr) %>% 
+  select(term, estimate, std.error, p.value) %>%
+  mutate(p.value = case_when(p.value != "1" ~ "<2e-16")) %>% 
+  kable(col.names = c("Variable", "Coefficient", "Standar Error", "Significance (p.value)")) %>% 
+  kable_styling(bootstrap_options = "striped")
+
+palmetto_species_blr_tidy
+
+
+```
+
+
+
+
+### Model's capabilities to correctly classify species (Serenoa repens / Sabal etonia)
+
+**Table 2.** Binary Logistic Regression model rersults. Data: Abrahamson, W.G. (2019).
+```{r}
+#Probability of being Serenoa repens (non-zero level):
+blr_fitted <- palmetto_species_blr %>% 
+  broom::augment(type.predict = "response")
+
+
+
+#Table about how successfully this model classify a plant as the correct species: 
+blr_prob <- blr_fitted %>% 
+  select(species, .fitted) %>% 
+  mutate(classification = case_when(.fitted >= "0.5" ~ "Serenoa repens", 
+                                    TRUE ~ "Sabal etonia")) %>%
+  mutate(prediction = case_when(species == classification ~ "Correct",
+                             species != classification ~ "Incorrect")) %>%
+  group_by(species, prediction) %>% 
+  summarise(n()) %>% 
+  pivot_wider(names_from = prediction, values_from = "n()") %>% 
+  mutate(percent_correct = round(100*(Correct/(Correct+Incorrect)), digits=2)) %>% 
+  kable(col.names = c("Species", "Correct", "Incrorrect", "Percent correctly classified")) %>% 
+  kable_styling(bootstrap_options = "striped")
+
+
+
+blr_prob
+
+```
+
+
+
+
 
 
 
