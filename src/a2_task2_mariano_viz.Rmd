@@ -26,7 +26,7 @@ In this report, I fist explore the differences in plant height, canopy length, c
 
 
 ```{r}
-#Read in data
+#Read in data:
 palmetto_data <- read_csv(here("data", "palmetto.csv"))
   
 
@@ -81,7 +81,7 @@ sp_length_plot <- ggplot(data = palmetto_subset, aes(x = species, y = length)) +
   theme(legend.position="none")
   
 
-#Data visualization stored for (Species and Canopy width):
+#Data visualization (Species and Canopy width):
 sp_width_plot <- ggplot(data = palmetto_subset, aes(x = species, y = width)) +
   geom_violin(aes(color = species, fill=species), alpha = 0.2)+
   geom_boxplot(fill = NA, 
@@ -104,7 +104,7 @@ sp_height_plot | sp_length_plot | sp_width_plot
 
 ```
 
-**Figure 1.** Distribution of plant height (cm), canopy length (cm), and canopy width (cm) for species *Serenoa repens* and *Sabal etonia*. Box endpoints indicate the 25^th^ and 75^th^ percentile values. The black line and black point within the box indicate the weights median and mean value respectively. Data: Abrahamson, W.G. (2019).
+**Figure 1.** Distribution of plant height (cm), canopy length (cm), and canopy width (cm) for species *Serenoa repens* and *Sabal etonia*. Box endpoints indicate the 25^th^ and 75^th^ percentile values. The black line and black point within the box indicate the median and mean value respectively. Data: Abrahamson, W.G. (2019).
 
 Distribution of plant height (cm), canopy length (cm), and canopy width (cm) do not show marked differences between the two species. Greatest differences between the two species are observed with respect to the canopy length. 
 
@@ -119,7 +119,7 @@ ggplot(data = palmetto_subset, aes(x = length, y = width)) +
   theme_minimal() 
 ```
 
-**Figure 2.** Relationship between canopy width (cm) and canopy length (cm) for  species *Serenoa repens* and *Sabal etonia*. Green and orange points indicate individual observation for *Serenoa repens* and *Sabal etonia* respectively.Data: Abrahamson, W.G. (2019).
+**Figure 2.** Relationship between canopy width (cm) and canopy length (cm) for  species *Serenoa repens* and *Sabal etonia*. Green and orange points indicate individual observation for *Serenoa repens* and *Sabal etonia* respectively. Data: Abrahamson, W.G. (2019).
 
 
 The plot shows a positive relationship between the variable canopy width (cm) and canopy length (cm). Both species show similar values for the variables, with a slightly higher presence of *Sabal etonia* in the highest values of canopy width (agreeing with what was observed in the preceding graph). 
@@ -144,9 +144,9 @@ ggplot(data = palmetto_subset, aes(x = species, y = green_lvs)) +
 
 ```
 
-**Figure 3.** Distribution of green leaves for species *Serenoa repens* and *Sabal etonia*. Box endpoints indicate the 25^th^ and 75^th^ percentile values. The black line and black point within the box indicate the weights median and mean value respectively. Data: Abrahamson, W.G. (2019).
+**Figure 3.** Distribution of green leaves for species *Serenoa repens* and *Sabal etonia*. Box endpoints indicate the 25^th^ and 75^th^ percentile values. The black line and black point within the box indicate the median and mean value respectively. Data: Abrahamson, W.G. (2019).
 
-Distribution of the green leaf counts varies markedly for the two spices where * Sabal etonia * shows lower values and with less variability than * Serenoa repens.
+Distribution of the green leaf counts varies markedly for the two spices where *Sabal etonia* shows lower values and less variability than *Serenoa repens*.
 
 
 ### Binary Logistic Regression
@@ -157,7 +157,7 @@ Distribution of the green leaf counts varies markedly for the two spices where *
 ```{r}
 #Convert Species column to factor:
 palmetto_blr <- palmetto_subset %>% 
-mutate(species = as.factor(species))
+mutate(species = as.factor(species)) #convert species to factor
 
 #Binary Logistic Regression:
 palmetto_species_blr <- glm(species ~ height + length + width + green_lvs, 
@@ -192,7 +192,7 @@ palmetto_species_blr_tidy
 ```{r}
 #Probability of being Serenoa repens (non-zero level):
 blr_fitted <- palmetto_species_blr %>% 
-  broom::augment(type.predict = "response")
+  broom::augment(type.predict = "response") #broom::augment to find actual probabilities
 
 
 
